@@ -4,6 +4,8 @@ Fetch Reward Points Api
 
 THE FOLLOWING API CREATED HAS 3 endpoints :
 
+NOTE: My port after running was 8080 but in case use the port you are running your application in
+
 1) To add the Transaction of a particular user with the Payer Name points. : http://localhost:8080/v1/api/transaction  
     After Running the code in IntelliJ or any IDE we will use this api to add transaction to the user for an Example hit this link after running in postaman under the post request 
     and in body add the following
@@ -46,6 +48,14 @@ THE FOLLOWING API CREATED HAS 3 endpoints :
    
    
    3)  The third and the last api is just to show how many points left from each payer to hit that api it is a Get Method and hot the api
-   http://localhost:8080/v1/api/deduct/1     here the last /1 is nothing but the userId you want the payerName transactions with
+   http://localhost:8080/v1/api/deduct/1     here the last /1 is nothing but the userId you want the payerName transactions with.
+   
+   
+   
+   About my classes and Packages:
+   
+   I have my main class of Spring Boot in package ( com.rewardsSystem.rewards) this has the main application from where you will run the application.
+   
+   then I have the controller, model, and Repository classes in which my main code logic is written in the controoler class only.
       
 
