@@ -48,14 +48,20 @@ public class TransactionController {
             Transaction transaction = iterator.next();
             int currentValue = transaction.getPoints();
 
+
             if (currentValue < 0) {
-                points += (currentValue);
-                pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue((currentValue) + pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue());
+                points += Math.abs(currentValue);
+                System.out.println("When 0 is greater" + points);
+                pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(Math.abs(currentValue) + pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue());
             } else {
                 if (currentValue <= points) {
-                    pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(0);
+                    int updatedValue = pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue() - currentValue;
+                    pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(updatedValue);
+                    points -= (currentValue);
+                    System.out.println("When  greater" + currentValue);
                 } else {
                     pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(currentValue - points);
+                    System.out.println("When " + currentValue);
                     break;
                 }
             }
@@ -70,6 +76,7 @@ public class TransactionController {
             output.append(entry.getKey());
             output.append(", ");
             output.append(entry.getValue().getCurrentValue() - entry.getValue().getOldValue());
+            System.out.println(entry.getValue().getOldValue());
             output.append(", ");
             output.append("now");
             output.append("]");
@@ -91,6 +98,7 @@ public class TransactionController {
             output.append(entry.getKey());
             output.append(", ");
             output.append(entry.getValue().getCurrentValue());
+
             deductedOutput.add(output.toString());
         }
         return deductedOutput;
