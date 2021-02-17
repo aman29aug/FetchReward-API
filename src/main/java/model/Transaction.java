@@ -9,9 +9,9 @@ public class Transaction {
     Date transactionDate;
     int userId;
 
-    public Transaction(String pairName, int points, Date transactionDate, int userId) {
+    public Transaction(String payerName, int points, Date transactionDate, int userId) {
 
-        this.payerName = pairName;
+        this.payerName = payerName;
         this.points = points;
         this.transactionDate = new Date();
         this.userId = userId;

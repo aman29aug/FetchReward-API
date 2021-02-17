@@ -14,6 +14,13 @@ public class User {
     private Queue<Transaction> transactions;
     private Map<String, Pair<Integer, Integer>> pointsOldCurrentValue;
 
+    public int getTotalPoints() {
+        return totalPoints;
+    }
+
+    public void setTotalPoints(int totalPoints) {
+        this.totalPoints = totalPoints;
+    }
 
     public User(int id) {
         this.id = id;

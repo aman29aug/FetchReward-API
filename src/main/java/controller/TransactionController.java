@@ -25,6 +25,8 @@ public class TransactionController {
         }
 
         User user = userRepository.getUsers().get(transaction.getUserId());
+        user.setTotalPoints(user.getTotalPoints() + transaction.getPoints());
+
 
         user.getTransactions().add(transaction);
 
@@ -42,6 +44,15 @@ public class TransactionController {
     public List<String> deductPoints(@PathVariable(name = "id") int userId, @PathVariable(name = "points") int points) {
         Queue<Transaction> transactions = userRepository.getUsers().get(userId).getTransactions();
         Map<String, Pair<Integer, Integer>> pointsOldCurrentValue = userRepository.getUsers().get(userId).getPointsOldCurrentValue();
+
+
+        if (userRepository.getUsers().get(userId).getTotalPoints() < points) {
+            try {
+                throw new Exception("Total points are less than points to be deducted");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         Iterator<Transaction> iterator = transactions.iterator();
         while (iterator.hasNext()) {
