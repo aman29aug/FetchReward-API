@@ -1,5 +1,7 @@
 package controller;
 
+import Exception.InsufficientBalanceException;
+import Exception.UserIdNotFound;
 import model.Pair;
 import model.Transaction;
 import model.User;
@@ -42,78 +44,85 @@ public class TransactionController {
 
     @GetMapping("/deduct/{id}/{points}")
     public List<String> deductPoints(@PathVariable(name = "id") int userId, @PathVariable(name = "points") int points) {
-        Queue<Transaction> transactions = userRepository.getUsers().get(userId).getTransactions();
-        Map<String, Pair<Integer, Integer>> pointsOldCurrentValue = userRepository.getUsers().get(userId).getPointsOldCurrentValue();
+        if (userRepository.getUsers().get(userId) != null) {
+            Queue<Transaction> transactions = userRepository.getUsers().get(userId).getTransactions();
+            Map<String, Pair<Integer, Integer>> pointsOldCurrentValue = userRepository.getUsers().get(userId).getPointsOldCurrentValue();
 
 
-        if (userRepository.getUsers().get(userId).getTotalPoints() < points) {
-            try {
-                throw new Exception("Total points are less than points to be deducted");
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (userRepository.getUsers().get(userId).getTotalPoints() < points) {
+                throw new InsufficientBalanceException("Total points are less than points to be deducted");
             }
-        }
 
-        Iterator<Transaction> iterator = transactions.iterator();
-        while (iterator.hasNext()) {
-            Transaction transaction = iterator.next();
-            int currentValue = transaction.getPoints();
+            Iterator<Transaction> iterator = transactions.iterator();
+            while (iterator.hasNext()) {
+                Transaction transaction = iterator.next();
+                int currentValue = transaction.getPoints();
 
 
-            if (currentValue < 0) {
-                points += Math.abs(currentValue);
-                System.out.println("When 0 is greater" + points);
-                pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(Math.abs(currentValue) + pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue());
-            } else {
-                if (currentValue <= points) {
-                    int updatedValue = pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue() - currentValue;
-                    pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(updatedValue);
-                    points -= (currentValue);
-                    System.out.println("When  greater" + currentValue);
+                if (currentValue < 0) {
+                    points += Math.abs(currentValue);
+                    System.out.println("When 0 is greater" + points);
+                    pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(Math.abs(currentValue) + pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue());
                 } else {
-                    pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(currentValue - points);
-                    System.out.println("When " + currentValue);
-                    break;
+                    if (currentValue <= points) {
+                        int updatedValue = pointsOldCurrentValue.get(transaction.getPayerName()).getCurrentValue() - currentValue;
+                        pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(updatedValue);
+                        points -= (currentValue);
+                        System.out.println("When  greater" + currentValue);
+                    } else {
+                        pointsOldCurrentValue.get(transaction.getPayerName()).setCurrentValue(currentValue - points);
+                        System.out.println("When " + currentValue);
+                        break;
+                    }
                 }
             }
+            List<String> deductedOutput = new ArrayList<>();
+            for (Map.Entry<String, Pair<Integer, Integer>> entry : pointsOldCurrentValue.entrySet()) {
+                StringBuilder output = new StringBuilder();
+                output.append("[");
+                output.append(entry.getKey());
+                output.append(", ");
+                output.append(entry.getValue().getCurrentValue() - entry.getValue().getOldValue());
+                System.out.println(entry.getValue().getOldValue());
+                output.append(", ");
+                output.append("now");
+                output.append("]");
+
+                deductedOutput.add(output.toString());
+            }
+
+            return deductedOutput;
+
+
+        } else {
+            throw new UserIdNotFound("The User not in the system");
         }
-        ;
 
 
-        List<String> deductedOutput = new ArrayList<>();
-        for (Map.Entry<String, Pair<Integer, Integer>> entry : pointsOldCurrentValue.entrySet()) {
-            StringBuilder output = new StringBuilder();
-            output.append("[");
-            output.append(entry.getKey());
-            output.append(", ");
-            output.append(entry.getValue().getCurrentValue() - entry.getValue().getOldValue());
-            System.out.println(entry.getValue().getOldValue());
-            output.append(", ");
-            output.append("now");
-            output.append("]");
 
-            deductedOutput.add(output.toString());
-        }
 
-        return deductedOutput;
     }
 
 
     @GetMapping("/deduct/{id}")
     public List<String> pointBalance(@PathVariable(name = "id") int userId) {
-        Map<String, Pair<Integer, Integer>> pointsOldCurrentValue = userRepository.getUsers().get(userId).getPointsOldCurrentValue();
-        List<String> deductedOutput = new ArrayList<>();
-        for (Map.Entry<String, Pair<Integer, Integer>> entry : pointsOldCurrentValue.entrySet()) {
-            StringBuilder output = new StringBuilder();
-            output.append("[");
-            output.append(entry.getKey());
-            output.append(", ");
-            output.append(entry.getValue().getCurrentValue());
 
-            deductedOutput.add(output.toString());
+        if (userRepository.getUsers().get(userId) != null) {
+            Map<String, Pair<Integer, Integer>> pointsOldCurrentValue = userRepository.getUsers().get(userId).getPointsOldCurrentValue();
+            List<String> deductedOutput = new ArrayList<>();
+            for (Map.Entry<String, Pair<Integer, Integer>> entry : pointsOldCurrentValue.entrySet()) {
+                StringBuilder output = new StringBuilder();
+                output.append("[");
+                output.append(entry.getKey());
+                output.append(", ");
+                output.append(entry.getValue().getCurrentValue());
+
+                deductedOutput.add(output.toString());
+            }
+            return deductedOutput;
+        } else {
+            throw new UserIdNotFound("The User not in the system");
         }
-        return deductedOutput;
-
 
     }
 
